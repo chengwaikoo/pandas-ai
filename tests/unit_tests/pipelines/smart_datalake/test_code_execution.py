@@ -169,3 +169,18 @@ class TestCodeExecution:
         assert result.output == {"type": "string", "value": "5"}
         assert result.message == "Code Executed Successfully"
         assert result.success is True
+
+    def test_code_execution_handles_series(self, context, logger):
+        # Test Flow : Code Execution converts pandas.Series to pandas.DataFrame
+        code_with_series = (
+            'result={"type": "dataframe", "value": pd.Series(["a", "b", "c"])}'
+        )
+
+        code_execution = CodeExecution()
+        result = code_execution.execute(
+            code_with_series, context=context, logger=logger
+        )
+
+        serialized_result = result.metadata["value"]
+        assert serialized_result["type"] == "dataframe"
+        assert "rows" in serialized_result["value"]
